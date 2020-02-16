@@ -52,7 +52,8 @@ int inTable(char* pt){
       return i;
     }
   }
-  return -1;
+  printf("Error code 1: invalid label %s\n", pt);
+  exit(1);
 }
 int isOpcode (char * ptr){ // check is opcode
 
@@ -132,12 +133,12 @@ int readAndParse( FILE * pInfile, char * pLine, char ** pLabel, char ** pOpcode,
           if(strncmp(pLine, ".end", 4)==0 || strncmp(pLine, ".END",4)==0 ){ //if end
               return DONE;
            }
-           for( i = 0; i < strlen( pLine ); i++){
-                pLine[i] = tolower( pLine[i] );
-                if(i==strlen(pLine)-2){
-                  pLine[i]='\0';
-                }
-           }
+          //  for( i = 0; i < strlen( pLine ); i++){
+          //       pLine[i] = tolower( pLine[i] );
+          //       if(i==strlen(pLine)-1){
+          //         pLine[i]='\0';
+          //       }
+          //  }
             
 
           /* convert entire line to lowercase */
@@ -146,7 +147,7 @@ int readAndParse( FILE * pInfile, char * pLine, char ** pLabel, char ** pOpcode,
            /* ignore the comments */
            lPtr = pLine;
 
-           while( *lPtr != ';' && *lPtr != '\0' && *lPtr != '\n' )
+           while( *lPtr != ';' && *lPtr != '\0' && *lPtr != '\n')
                 lPtr++;
 
            *lPtr = '\0';
@@ -203,7 +204,7 @@ int toNum(char *pStr ){ // string to num
     t_length = strlen(t_ptr);
     for(k=0;k < t_length;k++)
     {
-      if (!isdigit(*t_ptr) && (*t_ptr)!='\n' && (*t_ptr)!='\0')
+      if (!isdigit(*t_ptr))
       {
         
          printf("Error: invalid decimal operand, %s\n",orig_pStr);
@@ -227,10 +228,11 @@ int toNum(char *pStr ){ // string to num
     }
     t_ptr = pStr;
     t_length = strlen(t_ptr);
+    // printf("%s", t_ptr);
 
     for(k=0;k < t_length;k++)
     {
-      if (!isxdigit(*t_ptr)  && (*t_ptr)!='\0' && (*t_ptr)!='\n')
+      if (!isxdigit(*t_ptr))
       {
          printf("Error: invalid hex operand, %s\n",orig_pStr);
          exit(4);
@@ -296,7 +298,6 @@ int main(int argc, char* argv[]) {
     }
     
 
-
     char asmLine[MAX_LINE_LENGTH+1];
     char *opCopy, *label, *opCode, *Arg1, *Arg2, *Arg3, *Arg4;
     int lRet;
@@ -315,17 +316,16 @@ int main(int argc, char* argv[]) {
                 printf("Error code 4: illegal label: %s\n", label);
                 exit(4);
               }
-              // opCopy[11]='\0'; // need to fix this for the 
-              opCopy+=6;
-              if((toNum(opCopy)%2) == 0 )
-                  firstPC = secPC = toNum(opCopy);
+              if((toNum(Arg1)%2) == 0 )
+                  firstPC = secPC = toNum(Arg1);
               else{
                   printf("Error code 3: Invalid constant: %s\n", opCopy);
-                  exit(4);
+                  exit(3);
               }
-            }else
-              continue;
+            }
+            continue;
           }
+          
           if((*label)!='\0'){
             
             if(!(isRealLabel(label))){
@@ -355,6 +355,7 @@ int main(int argc, char* argv[]) {
     int oToFile=0;
     int tIndex=0;
 
+    return 0;
     do{ // second pass turn to machine code
         
         oToFile=0;
@@ -367,13 +368,16 @@ int main(int argc, char* argv[]) {
             if(strncmp(opCode, ".orig", 5)!=0){ // not orig            
               continue;
             }
-            fprintf(outfile, "0%s\n", Arg1);
             first=false;
             continue;
           }
           secPC+=2;
           if(secPC>=65536){
-            printf("Error code 4: PC overflow.");
+            printf("Error code 4: PC overflow\n");
+            exit(4);
+          }
+          if(strcmp(Arg4, "")!=0){
+            printf("Error code 4: too many arguments\n");
             exit(4);
           }
           switch (isOpcode(opCode))
@@ -388,7 +392,7 @@ int main(int argc, char* argv[]) {
               regi=toNum(Arg3);
               if(regi>15 || regi<-31){
                 printf("Error code 3: invalid constant #%d\n", regi);
-                exit(4);
+                exit(3);
               }
               oToFile+=regi;
 
@@ -411,7 +415,7 @@ int main(int argc, char* argv[]) {
               regi=toNum(Arg3);
               if(regi>15  || regi<-31){
                 printf("Error code 3: invalid constant #%d\n", regi);
-                exit(4);
+                exit(3);
               }
               oToFile+=regi;
 
@@ -424,6 +428,10 @@ int main(int argc, char* argv[]) {
             fprintf(outfile, "0x%.4X\n", oToFile&0xffff);
             break;
           case BR:
+            if(strcmp(Arg2,"")!=0){
+              printf("Error code 4: too many arguments\n");
+              exit(4);
+            }
             if(opCode[2]=='z'){ //brz---
 
               if(opCode[3]=='p'){ //brzp
@@ -454,7 +462,7 @@ int main(int argc, char* argv[]) {
               regi=(toNum(Arg1));
               if(regi>255 || regi<-511){
                 printf("Error code 3: invalid constant %d\n", regi);
-                exit(4);
+                exit(3);
               }
               oToFile+=regi;
             }else{
@@ -463,7 +471,7 @@ int main(int argc, char* argv[]) {
                 
                 if((symbolTable[tIndex].address-secPC)>255 || (symbolTable[tIndex].address-secPC)<-511){
                   printf("Error code 3: invalid constant %d\n", regi);
-                  exit(4);
+                  exit(3);
                 }
                 oToFile+=(symbolTable[tIndex].address-secPC); 
               }else{
@@ -476,21 +484,33 @@ int main(int argc, char* argv[]) {
           
             break;
           case HALT:
+            if(strcmp(Arg1,"")!=0){
+              printf("Error code 4: too many arguments\n");
+              exit(4);
+            }
             oToFile=61477;
             fprintf(outfile, "0x%.4X\n", oToFile&0xffff);
             break;
           case JMP:
+            if(strcmp(Arg2,"")!=0){
+              printf("Error code 4: too many arguments\n");
+              exit(4);
+            }
             oToFile+=(49152);
             oToFile+=(regToDec(Arg1)<<6);
             fprintf(outfile, "0x%.4X\n", oToFile&0xffff);
             break;
           case JSR:
+            if(strcmp(Arg2,"")!=0){
+              printf("Error code 4: too many arguments\n");
+              exit(4);
+            }
             oToFile+=(18432);
             if(Arg1[0]=='#'){//immediate
               regi=(toNum(Arg1));
               if(regi>1023 || regi<-2047){
                 printf("Error code 3: invalid constant %d\n", regi);
-                exit(4);
+                exit(3);
               }
               oToFile+=regi;
             }else{
@@ -498,7 +518,7 @@ int main(int argc, char* argv[]) {
               if(tIndex!=-1){ //label found
                 if((symbolTable[tIndex].address-secPC)>255 || (symbolTable[tIndex].address-secPC)<-511){
                   printf("Error code 3: invalid constant %d\n", regi);
-                  exit(4);
+                  exit(3);
                 }
                 oToFile+=(symbolTable[tIndex].address-secPC); //check if overflow
               }else{
@@ -509,6 +529,10 @@ int main(int argc, char* argv[]) {
             fprintf(outfile, "0x%.4X\n",oToFile&0xffff);
             break;
           case JSRR:
+            if(strcmp(Arg2,"")!=0){
+              printf("Error code 4: too many arguments\n");
+              exit(4);
+            }
             oToFile+=(1<<14);
             oToFile+=(regToDec(Arg1)<<6);
             fprintf(outfile, "0x%.4X\n", oToFile);
@@ -521,12 +545,12 @@ int main(int argc, char* argv[]) {
               regi=toNum(Arg3);
               if(regi> 31 || regi<-63){
                 printf("Error code 3: invalid constant %d\n", regi);
-                exit(4);
+                exit(3);
               }
               oToFile+=regi;
             }else{
               printf("Error code 3: invalid constant %s\n", Arg3);
-              exit(4);
+              exit(3);
             }
             fprintf(outfile, "0x%.4X\n", oToFile&0xffff);
             break;
@@ -538,24 +562,28 @@ int main(int argc, char* argv[]) {
               regi=toNum(Arg3);
               if(regi> 31 || regi<-63){
                 printf("Error code 3: invalid constant %d\n", regi);
-                exit(4);
+                exit(3);
               }
               oToFile+=regi;
             }else{
               printf("Error code 3: invalid constant %s\n", Arg3);
-              exit(4);
+              exit(3);
             }
             fprintf(outfile, "0x%.4X\n", oToFile&0xffff);
             break;
             break;
           case LEA:
+            if(strcmp(Arg3,"")!=0){
+              printf("Error code 4: too many arguments\n");
+              exit(4);
+            }
             oToFile+=(0xE<<12);
             oToFile+=(regToDec(Arg1)<<9);
             if(Arg2[0]=='#'){//immediate
               regi=(toNum(Arg2));
               if(regi>255 || regi<-511){
                 printf("Error code 3: invalid constant %d\n", regi);
-                exit(4);
+                exit(3);
               }
               oToFile+=regi;
             }else{
@@ -564,7 +592,7 @@ int main(int argc, char* argv[]) {
               if(tIndex!=-1){ //label found
                 if((symbolTable[tIndex].address-secPC)>255 || (symbolTable[tIndex].address-secPC)<-511){
                   printf("Error code 3: invalid constant %d\n", regi);
-                  exit(4);
+                  exit(3);
                 }
                 oToFile+=(symbolTable[tIndex].address-secPC); 
               }else{
@@ -575,9 +603,17 @@ int main(int argc, char* argv[]) {
             fprintf(outfile, "0x%.4X\n", oToFile&0xffff);
             break;
           case NOP:
+            if(strcmp(Arg1,"")!=0){
+              printf("Error code 4: too many arguments\n");
+              exit(4);
+            }
             fprintf(outfile, "0x%.4X\n", oToFile&0xffff);
             break;
           case NOT:
+            if(strcmp(Arg3,"")!=0){
+              printf("Error code 4: too many arguments\n");
+              exit(4);
+            }
             oToFile+=(0x9<<12);
             oToFile+=regToDec(Arg1);
             oToFile+=regToDec(Arg2);
@@ -585,6 +621,10 @@ int main(int argc, char* argv[]) {
             fprintf(outfile, "0x%.4X\n", oToFile&0xffff);
             break;
           case RET:
+            if(strcmp(Arg1,"")!=0){
+              printf("Error code 4: too many arguments\n");
+              exit(4);
+            }
             oToFile=49600;
             fprintf(outfile, "0x%.4X\n", oToFile&0xffff);
             break;
@@ -598,17 +638,21 @@ int main(int argc, char* argv[]) {
             oToFile+=regToDec(Arg2)<<6;
             if(Arg3[0]!='#'){
               printf("Error code 3: invalid constant %s\n", Arg3);
-              exit(4);
+              exit(3);
             }
             regi=toNum(Arg3);
-            if(regi>7 || regi<0){
+            if(regi>15 || regi<0){
               printf("Error code 3: invalid constant %d\n", regi);
-              exit(4);
+              exit(3);
             }
             oToFile+=regi;
             fprintf(outfile, "0x%.4X", oToFile);
             break;
           case RTI:
+            if(strcmp(Arg1,"")!=0){
+              printf("Error code 4: too many arguments\n");
+              exit(4);
+            }
             oToFile=32768;
             fprintf(outfile, "0x%.4X\n", oToFile&0xffff);
             break;
@@ -621,12 +665,12 @@ int main(int argc, char* argv[]) {
               regi=toNum(Arg3);
               if(regi> 31 || regi<-63){
                 printf("Error code 3: invalid constant %d\n", regi);
-                exit(4);
+                exit(3);
               }
               oToFile+=regi;
             }else{
               printf("Error code 3: invalid constant %s\n", Arg3);
-              exit(4);
+              exit(3);
             }
             fprintf(outfile, "0x%.4X\n", oToFile&0xffff);
             break;
@@ -639,20 +683,24 @@ int main(int argc, char* argv[]) {
               regi=toNum(Arg3);
               if(regi> 31 || regi<-63){
                 printf("Error code 3: invalid constant %d\n", regi);
-                exit(4);
+                exit(3);
               }
               oToFile+=regi;
             }else{
               printf("Error code 3: invalid constant %s\n", Arg3);
-              exit(4);
+              exit(3);
             }
             fprintf(outfile, "0x%.4X\n", oToFile&0xffff);
             break;
           case TRAP:
+            if(strcmp(Arg2,"")!=0){
+              printf("Error code 4: too many arguments\n");
+              exit(4);
+            }
             oToFile+=0xF0<<8;
             if(Arg1[0]!='x'){
               printf("Error code 3: invalid constant %s\n", Arg1);
-              exit(4);
+              exit(3);
             }
             switch (toNum(Arg1))
             {
@@ -666,7 +714,7 @@ int main(int argc, char* argv[]) {
               break;
             default:
               printf("Error code 3: invalid constant %s\n", Arg1);
-              exit(4);
+              exit(3);
               break;
             }
             fprintf(outfile, "0x%.4X\n", oToFile);
@@ -683,7 +731,7 @@ int main(int argc, char* argv[]) {
               regi=toNum(Arg3);
               if(regi>15 || regi<-31){
                 printf("Error code 3: invalid constant #%d\n", regi);
-                exit(4);
+                exit(3);
               }
               oToFile+=regi;
             }else{
@@ -696,8 +744,8 @@ int main(int argc, char* argv[]) {
               fprintf(outfile, "0x%.4X", toNum(Arg1));
             }
             else{
-              printf("Error code 2: invalid opcode %s\n", opCode);
-              exit(4);
+              printf("Error code 2: invalid opcode\n", opCode);
+              exit(2);
             }
           }
           
@@ -715,6 +763,7 @@ int main(int argc, char* argv[]) {
     fclose(outfile);
 
   printf("\nInput ran fully!\n");
+  return EXIT_SUCCESS;
 
 
 }
