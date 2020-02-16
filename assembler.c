@@ -372,6 +372,10 @@ int main(int argc, char* argv[]) {
             continue;
           }
           secPC+=2;
+          if(secPC>=65536){
+            printf("Error code 4: PC overflow.");
+            exit(4);
+          }
           switch (isOpcode(opCode))
           {
           case ADD:
