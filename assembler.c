@@ -550,7 +550,7 @@ int main(int argc, char* argv[]) {
           case LEA:
             oToFile+=(0xE<<12);
             oToFile+=(regToDec(Arg1)<<9);
-            if(Arg1[0]=='#'){//immediate
+            if(Arg2[0]=='#'){//immediate
               regi=(toNum(Arg2));
               if(regi>255 || regi<-511){
                 printf("Error code 3: invalid constant %d\n", regi);
@@ -711,6 +711,8 @@ int main(int argc, char* argv[]) {
 
     fclose(infile);
     fclose(outfile);
+
+  printf("\nInput ran fully!\n");
 
 
 }
