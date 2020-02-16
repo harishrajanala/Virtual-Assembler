@@ -460,6 +460,7 @@ int main(int argc, char* argv[]) {
             }else{
               tIndex=inTable(Arg1);
               if(tIndex!=-1){ //label found
+                
                 if((symbolTable[tIndex].address-secPC)>255 || (symbolTable[tIndex].address-secPC)<-511){
                   printf("Error code 3: invalid constant %d\n", regi);
                   exit(4);
@@ -559,6 +560,7 @@ int main(int argc, char* argv[]) {
               oToFile+=regi;
             }else{
               tIndex=inTable(Arg2);
+
               if(tIndex!=-1){ //label found
                 if((symbolTable[tIndex].address-secPC)>255 || (symbolTable[tIndex].address-secPC)<-511){
                   printf("Error code 3: invalid constant %d\n", regi);
@@ -566,7 +568,7 @@ int main(int argc, char* argv[]) {
                 }
                 oToFile+=(symbolTable[tIndex].address-secPC); 
               }else{
-                printf("Error code 4: invalid label %s\n", Arg1);
+                printf("Error code 4: invalid label %s\n", Arg2);
                 exit(4);
               }
             }
