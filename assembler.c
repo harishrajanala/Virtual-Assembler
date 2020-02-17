@@ -362,7 +362,7 @@ int main(int argc, char* argv[]) {
               continue;
             }
             first=false;
-            fprintf(outfile, "0x%.4X", secPC);
+            fprintf(outfile, "0x%.4X\n", secPC);
             continue;
           }
           secPC+=2;
@@ -388,7 +388,7 @@ int main(int argc, char* argv[]) {
                 printf("Error code 3: invalid constant #%d\n", regi);
                 exit(3);
               }
-              oToFile|=regi;
+              oToFile|=(regi&0x1f);
 
             }else if(Arg3[0]=='r'){  //or register           
               oToFile+=regToDec(Arg3);
@@ -411,7 +411,7 @@ int main(int argc, char* argv[]) {
                 printf("Error code 3: invalid constant #%d\n", regi);
                 exit(3);
               }
-              oToFile|=regi;
+              oToFile|=(regi&0x1f);
 
             }else if(Arg3[0]=='r'){  //or register           
               oToFile+=regToDec(Arg3);
@@ -458,7 +458,7 @@ int main(int argc, char* argv[]) {
                 printf("Error code 3: invalid constant %d\n", regi);
                 exit(3);
               }
-              oToFile|=regi;
+              oToFile|=(regi&0x1ff);
             }else{
               tIndex=inTable(Arg1);
               if(tIndex!=-1){ //label found
@@ -467,7 +467,7 @@ int main(int argc, char* argv[]) {
                   printf("Error code 3: invalid constant %d\n", regi);
                   exit(3);
                 }
-                oToFile|=((symbolTable[tIndex].address-secPC)/2); 
+                oToFile|=(((symbolTable[tIndex].address-secPC)/2)&0x1ff); 
               }else{
                 printf("Error code 4: invalid label %s\n", Arg1);
                 exit(4);
@@ -506,7 +506,7 @@ int main(int argc, char* argv[]) {
                 printf("Error code 3: invalid constant %d\n", regi);
                 exit(3);
               }
-              oToFile|=regi;
+              oToFile|=(regi&0x7ff);
             }else{
               tIndex=inTable(Arg1);
               if(tIndex!=-1){ //label found
@@ -514,7 +514,7 @@ int main(int argc, char* argv[]) {
                   printf("Error code 3: invalid constant %d\n", regi);
                   exit(3);
                 }
-                oToFile|=((symbolTable[tIndex].address-secPC)/2); //check if overflow
+                oToFile|=(((symbolTable[tIndex].address-secPC)/2)&0x7ff); //check if overflow
               }else{
                 printf("Error code 4: invalid label %s\n", Arg1);
                 exit(4);
@@ -541,7 +541,7 @@ int main(int argc, char* argv[]) {
                 printf("Error code 3: invalid constant %d\n", regi);
                 exit(3);
               }
-              oToFile+=regi;
+              oToFile+=(regi&0x3f);
             }else{
               printf("Error code 3: invalid constant %s\n", Arg3);
               exit(3);
@@ -558,7 +558,7 @@ int main(int argc, char* argv[]) {
                 printf("Error code 3: invalid constant %d\n", regi);
                 exit(3);
               }
-              oToFile+=regi;
+              oToFile+=(regi&0x3f);
             }else{
               printf("Error code 3: invalid constant %s\n", Arg3);
               exit(3);
@@ -579,7 +579,7 @@ int main(int argc, char* argv[]) {
                 printf("Error code 3: invalid constant %d\n", regi);
                 exit(3);
               }
-              oToFile|=regi;
+              oToFile|=(regi&0x1ff);
             }else{
               tIndex=inTable(Arg2);
 
@@ -588,7 +588,7 @@ int main(int argc, char* argv[]) {
                   printf("Error code 3: invalid constant %d\n", regi);
                   exit(3);
                 }
-                oToFile|=((symbolTable[tIndex].address-secPC)/2); 
+                oToFile|=(((symbolTable[tIndex].address-secPC)/2)&0x1ff); 
               }else{
                 printf("Error code 4: invalid label %s\n", Arg2);
                 exit(4);
@@ -661,7 +661,7 @@ int main(int argc, char* argv[]) {
                 printf("Error code 3: invalid constant %d\n", regi);
                 exit(3);
               }
-              oToFile+=regi;
+              oToFile+=(regi&0x3f);
             }else{
               printf("Error code 3: invalid constant %s\n", Arg3);
               exit(3);
@@ -679,7 +679,7 @@ int main(int argc, char* argv[]) {
                 printf("Error code 3: invalid constant %d\n", regi);
                 exit(3);
               }
-              oToFile+=regi;
+              oToFile+=(regi&0x3f);
             }else{
               printf("Error code 3: invalid constant %s\n", Arg3);
               exit(3);
@@ -727,7 +727,7 @@ int main(int argc, char* argv[]) {
                 printf("Error code 3: invalid constant #%d\n", regi);
                 exit(3);
               }
-              oToFile|=regi;
+              oToFile|=(regi&0x1f);
             }else{
               printf("Error code 4: invalid argument %s\n", Arg3);
             }
