@@ -122,39 +122,34 @@ int isOpcode (char * ptr){ // check is opcode
 
 }
 int readAndParse( FILE * pInfile, char * pLine, char ** pLabel, char ** pOpcode, char ** pArg1, char ** pArg2, char ** pArg3, char ** pArg4){
-                 
-           char * lRet, * lPtr;
+
+          char * lRet, * lPtr;
            int i;
            if( !fgets( pLine, MAX_LINE_LENGTH, pInfile ) )
                 return( DONE );
-          
-          //  printf("%s hi ", pLine);
-          //  return DONE; 
+
           if(strncmp(pLine, ".end", 4)==0 || strncmp(pLine, ".END",4)==0 ){ //if end
               return DONE;
            }
-          //  for( i = 0; i < strlen( pLine ); i++){
-          //       pLine[i] = tolower( pLine[i] );
-          //       if(i==strlen(pLine)-1){
-          //         pLine[i]='\0';
-          //       }
-          //  }
-            
 
+           for( i = 0; i < strlen( pLine ); i++ )
+                pLine[i] = tolower( pLine[i] );
+          
           /* convert entire line to lowercase */
            *pLabel = *pOpcode = *pArg1 = *pArg2 = *pArg3 = *pArg4 = pLine + strlen(pLine);
 
            /* ignore the comments */
            lPtr = pLine;
 
-           while( *lPtr != ';' && *lPtr != '\0' && *lPtr != '\n')
+           while( *lPtr != ';' && *lPtr != '\0' &&
+           *lPtr != '\n' )
                 lPtr++;
 
            *lPtr = '\0';
            if( !(lPtr = strtok( pLine, "\t\n ," ) ) )
                 return( EMPTY_LINE );
 
-          if( isOpcode( lPtr ) == -1 && lPtr[0] != '.' ) /* found a label */
+           if( isOpcode( lPtr ) == -1 && lPtr[0] != '.' ) /* found a label */
            {
                 *pLabel = lPtr;
                 if( !( lPtr = strtok( NULL, "\t\n ," ) ) ) return( OK );
@@ -176,8 +171,6 @@ int readAndParse( FILE * pInfile, char * pLine, char ** pLabel, char ** pOpcode,
            if( !( lPtr = strtok( NULL, "\t\n ," ) ) ) return( OK );
 
            *pArg4 = lPtr;
-
-           
 
            return( OK );
            
@@ -349,21 +342,21 @@ int main(int argc, char* argv[]) {
       printf("Error code 4: could not find .ORIG \n");
       exit(4); 
     }
+
     rewind(infile);
     first=true;
     int regi;
     int oToFile=0;
     int tIndex=0;
-
-    return 0;
+    
     do{ // second pass turn to machine code
         
         oToFile=0;
-        // printf("test");
         lRet = readAndParse( infile, asmLine, &label, &opCode, &Arg1, &Arg2, &Arg3, &Arg4 );
         
         if( lRet != DONE && lRet != EMPTY_LINE ){
 
+          
           if(first){ // loop until orig is found
             if(strncmp(opCode, ".orig", 5)!=0){ // not orig            
               continue;
@@ -399,7 +392,7 @@ int main(int argc, char* argv[]) {
             }else if(Arg3[0]=='r'){  //or register           
               oToFile+=regToDec(Arg3);
             }else{ //anything else bad
-              printf("Error code 4: invalid argument %s\n", Arg3);
+              printf("Error code 4: invalid argument %s \n", Arg3);
               exit(4);
             }
             fprintf(outfile, "0x%.4X\n", oToFile&0xffff);
@@ -744,7 +737,7 @@ int main(int argc, char* argv[]) {
               fprintf(outfile, "0x%.4X", toNum(Arg1));
             }
             else{
-              printf("Error code 2: invalid opcode\n", opCode);
+              printf("Error code 2: invalid opcode %s\n", opCode);
               exit(2);
             }
           }
