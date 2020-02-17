@@ -467,7 +467,7 @@ int main(int argc, char* argv[]) {
                   printf("Error code 3: invalid constant %d\n", regi);
                   exit(3);
                 }
-                oToFile+=(symbolTable[tIndex].address-secPC); 
+                oToFile|=((symbolTable[tIndex].address-secPC)/2); 
               }else{
                 printf("Error code 4: invalid label %s\n", Arg1);
                 exit(4);
@@ -514,7 +514,7 @@ int main(int argc, char* argv[]) {
                   printf("Error code 3: invalid constant %d\n", regi);
                   exit(3);
                 }
-                oToFile+=(symbolTable[tIndex].address-secPC); //check if overflow
+                oToFile|=((symbolTable[tIndex].address-secPC)/2); //check if overflow
               }else{
                 printf("Error code 4: invalid label %s\n", Arg1);
                 exit(4);
@@ -588,7 +588,7 @@ int main(int argc, char* argv[]) {
                   printf("Error code 3: invalid constant %d\n", regi);
                   exit(3);
                 }
-                oToFile+=(symbolTable[tIndex].address-secPC); 
+                oToFile|=((symbolTable[tIndex].address-secPC)/2); 
               }else{
                 printf("Error code 4: invalid label %s\n", Arg2);
                 exit(4);
