@@ -381,11 +381,11 @@ int main(int argc, char* argv[]) {
             oToFile+=(regToDec(Arg1)<<9);
             oToFile+=(regToDec(Arg2)<<6);
 
-            if(Arg3[0]=='#'){//immediate value
+            if(Arg3[0]=='#' || Arg3[0]=='x'){//immediate value
               oToFile+=32;
               regi=toNum(Arg3);
               if(regi>15 || regi<-31){
-                printf("Error code 3: invalid constant #%d\n", regi);
+                printf("Error code 3: invalid constant %d\n", regi);
                 exit(3);
               }
               oToFile|=(regi&0x1f);
@@ -404,11 +404,11 @@ int main(int argc, char* argv[]) {
             oToFile+=(regToDec(Arg1)<<9);
             oToFile+=(regToDec(Arg2)<<6);
 
-            if(Arg3[0]=='#'){//immediate value
+            if(Arg3[0]=='#'  || Arg3[0]=='x'){//immediate value
               oToFile+=(32);
               regi=toNum(Arg3);
               if(regi>15  || regi<-31){
-                printf("Error code 3: invalid constant #%d\n", regi);
+                printf("Error code 3: invalid constant %d\n", regi);
                 exit(3);
               }
               oToFile|=(regi&0x1f);
@@ -452,7 +452,7 @@ int main(int argc, char* argv[]) {
               }
 
             }
-            if(Arg1[0]=='#'){//immediate
+            if(Arg1[0]=='#' || Arg1[0]=='x'){//immediate
               regi=(toNum(Arg1));
               if(regi>255 || regi<-511){
                 printf("Error code 3: invalid constant %d\n", regi);
@@ -500,7 +500,7 @@ int main(int argc, char* argv[]) {
               exit(4);
             }
             oToFile+=(18432);
-            if(Arg1[0]=='#'){//immediate
+            if(Arg1[0]=='#' || Arg1[0]=='x'){//immediate
               regi=(toNum(Arg1));
               if(regi>1023 || regi<-2047){
                 printf("Error code 3: invalid constant %d\n", regi);
@@ -535,7 +535,7 @@ int main(int argc, char* argv[]) {
             oToFile+=1<<13;
             oToFile+=regToDec(Arg1)<<9;
             oToFile+=regToDec(Arg2)<<6;
-            if(Arg3[0]=='#'){
+            if(Arg3[0]=='#' || Arg3[0]=='x'){
               regi=toNum(Arg3);
               if(regi> 31 || regi<-63){
                 printf("Error code 3: invalid constant %d\n", regi);
@@ -552,7 +552,7 @@ int main(int argc, char* argv[]) {
             oToFile+=(0x6<<12);
             oToFile+=regToDec(Arg1)<<9;
             oToFile+=regToDec(Arg2)<<6;
-            if(Arg3[0]=='#'){
+            if(Arg3[0]=='#' || Arg3[0]=='x'){
               regi=toNum(Arg3);
               if(regi> 31 || regi<-63){
                 printf("Error code 3: invalid constant %d\n", regi);
@@ -573,7 +573,7 @@ int main(int argc, char* argv[]) {
             }
             oToFile+=(0xE<<12);
             oToFile+=(regToDec(Arg1)<<9);
-            if(Arg2[0]=='#'){//immediate
+            if(Arg2[0]=='#' || Arg2[0]=='x'){//immediate
               regi=(toNum(Arg2));
               if(regi>255 || regi<-511){
                 printf("Error code 3: invalid constant %d\n", regi);
@@ -630,7 +630,7 @@ int main(int argc, char* argv[]) {
             oToFile+=(0xD<<12);
             oToFile+=regToDec(Arg1)<<9;
             oToFile+=regToDec(Arg2)<<6;
-            if(Arg3[0]!='#'){
+            if(Arg3[0]!='#' || Arg3[0]=='x'){
               printf("Error code 3: invalid constant %s\n", Arg3);
               exit(3);
             }
@@ -655,7 +655,7 @@ int main(int argc, char* argv[]) {
             oToFile+=(regToDec(Arg1)<<9);
             oToFile+=(regToDec(Arg2)<<6);
 
-            if(Arg3[0]=='#'){
+            if(Arg3[0]=='#' || Arg3[0]=='x'){
               regi=toNum(Arg3);
               if(regi> 31 || regi<-63){
                 printf("Error code 3: invalid constant %d\n", regi);
@@ -673,7 +673,7 @@ int main(int argc, char* argv[]) {
             oToFile+=(regToDec(Arg1)<<9);
             oToFile+=(regToDec(Arg2)<<6);
 
-            if(Arg3[0]=='#'){
+            if(Arg3[0]=='#' || Arg3[0]=='x'){
               regi=toNum(Arg3);
               if(regi> 31 || regi<-63){
                 printf("Error code 3: invalid constant %d\n", regi);
@@ -720,11 +720,11 @@ int main(int argc, char* argv[]) {
 
             if(Arg3[0]=='r'){ //register
               oToFile+=(regToDec(Arg3));
-            }else if(Arg3[0]=='#'){ // immediate
+            }else if(Arg3[0]=='#' || Arg3[0]=='x'){ // immediate
               oToFile+=32;
               regi=toNum(Arg3);
               if(regi>15 || regi<-31){
-                printf("Error code 3: invalid constant #%d\n", regi);
+                printf("Error code 3: invalid constant %d\n", regi);
                 exit(3);
               }
               oToFile|=(regi&0x1f);
